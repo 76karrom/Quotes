@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Quotes.Models;
 
 namespace Quotes.Controllers
 {
@@ -10,9 +11,11 @@ namespace Quotes.Controllers
         }
 
         [HttpPost]
-        public IActionResult Subscribe(string name, string email)
+        public IActionResult Subscribe(Subscriber subscriber)
         {
-            return Content($"THANX {name}! You will be hearing from us :)");
+            ViewBag.Message = $"THANX {subscriber.Name}! {subscriber.Email} will get news :)";
+
+            return View();
         }
     }
 }
