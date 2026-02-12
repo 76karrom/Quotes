@@ -1,12 +1,18 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
 using Quotes.Models;
+using Quotes.Services;
 
 namespace Quotes.Controllers
 {
     public class NewsletterController : Controller
     {
-        private static List<Subscriber> _subscribers = [];
+        private readonly INewsletterService _newsletterService;
+
+        public NewsletterController(INewsletterService newsletterService)
+        {
+            _newsletterService = newsletterService;
+        }
 
         public IActionResult Subscribe()
         {
@@ -14,43 +20,43 @@ namespace Quotes.Controllers
         }
 
         [HttpGet]
-        public IActionResult Subscribers()
+        public async Task<IActionResult> Subscribers()
         {
-            return View(_subscribers);
+            var subscribers = await _newsletterService.GetActiveSubscribersAsync();
+
+            return View(subscribers);
         }
 
         [HttpPost]
-        public IActionResult Subscribe(Subscriber subscriber)
+        public async Task<IActionResult> Subscribe(Subscriber subscriber)
         {
             if (!ModelState.IsValid)
             {
                 return View(subscriber);
             }
 
-            if (_subscribers.Any(s => s.Email == subscriber.Email))
+            var result = await _newsletterService.SignUpForNewsletterAsync(subscriber);
+            if (!result.IsSuccess)
             {
-                ModelState.AddModelError("Email", "Already subscribed :)");
-                
+                ModelState.AddModelError("Email", result.Message);
                 return View(subscriber);
             }
 
-            _subscribers.Add(subscriber);
-
-            TempData["SuccessMessage"] = $"THANX {subscriber.Name}! {subscriber.Email} will get news :)";
+            TempData["SuccessMessage"] = result.Message;
 
             return RedirectToAction(nameof(Subscribe));
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Unsubscribe(string email)
+        public async Task<IActionResult> Unsubscribe(string email)
         {
-            var subscriber = _subscribers.FirstOrDefault(s => s.Email == email);
-            if (subscriber != null)
+            var result = await _newsletterService.OptOutFromNewsletterAsync(email);
+            if (result.IsSuccess)
             {
-                _subscribers.Remove(subscriber);
-                TempData["SuccessMessage"] = $"Successfully unsubscribed {email} from the newsletter.";
+                TempData["SuccessMessage"] = result.Message;
             }
+
             return RedirectToAction(nameof(Subscribers));
         }
     }

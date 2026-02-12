@@ -1,3 +1,5 @@
+using Quotes.Services;
+
 namespace Quotes
 {
     public class Program
@@ -5,6 +7,8 @@ namespace Quotes
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            builder.Services.AddScoped<INewsletterService, NewsletterService>();
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
