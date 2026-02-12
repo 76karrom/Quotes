@@ -1,3 +1,4 @@
+using Quotes.Repositories;
 using Quotes.Services;
 
 namespace Quotes
@@ -7,6 +8,8 @@ namespace Quotes
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            builder.Services.AddSingleton<ISubscriberRepository, InMemorySubscriberRepository>();
 
             builder.Services.AddScoped<INewsletterService, NewsletterService>();
 
