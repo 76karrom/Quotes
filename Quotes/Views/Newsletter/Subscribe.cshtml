@@ -6,9 +6,22 @@
 
 <h2>Signup up for our quotes newsletter</h2>
 
-@if (ViewBag.Message != null)
+<!-- validation summery -->
+@if (!ViewData.ModelState.IsValid)
 {
-    <p style="color: green;">@ViewBag.Message</p>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @Html.ValidationSummary(false, null, new { @class = "text-danger" })
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"><i class="fas fa-times"></i></button>
+    </div>
+}
+
+<!-- TempData from controller -->
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"><i class="fas fa-times"></i></button>
+    </div>
 }
 
 <form asp-action="Subscribe" method="post">

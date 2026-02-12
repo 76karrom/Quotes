@@ -1,10 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+
 using Quotes.Models;
 
 namespace Quotes.Controllers
 {
     public class NewsletterController : Controller
     {
+        private static List<Subscriber> _subscribers = [];
+
         public IActionResult Subscribe()
         {
             return View();
@@ -13,9 +16,23 @@ namespace Quotes.Controllers
         [HttpPost]
         public IActionResult Subscribe(Subscriber subscriber)
         {
-            ViewBag.Message = $"THANX {subscriber.Name}! {subscriber.Email} will get news :)";
+            if (!ModelState.IsValid)
+            {
+                return View(subscriber);
+            }
 
-            return View();
+            if (_subscribers.Any(s => s.Email == subscriber.Email))
+            {
+                ModelState.AddModelError("Email", "Already subscribed :)");
+                
+                return View(subscriber);
+            }
+
+            _subscribers.Add(subscriber);
+
+            TempData["SuccessMessage"] = $"THANX {subscriber.Name}! {subscriber.Email} will get news :)";
+
+            return RedirectToAction(nameof(Subscribe));
         }
     }
 }
