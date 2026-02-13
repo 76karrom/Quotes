@@ -1,0 +1,17 @@
+[Unit]
+Description=.NET MVC Application
+After=network.target
+
+[Service]
+Type=simple
+User=quotes-app
+Group=quotes-app
+WorkingDirectory=/opt/quotes-app
+ExecStart=/usr/bin/dotnet /opt/quotes-app/Quotes.dll
+Restart=always
+RestartSec=5
+Environment=ASPNETCORE_URLS=http://0.0.0.0:5000
+Environment=ASPNETCORE_ENVIRONMENT=Production
+
+[Install]
+WantedBy=multi-user.target
