@@ -28,6 +28,7 @@ namespace Quotes.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Subscribe(Subscriber subscriber)
         {
             if (!ModelState.IsValid)
