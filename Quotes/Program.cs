@@ -1,3 +1,6 @@
+using DotNetEnv;
+using MongoDB.Driver;
+using Quotes.Configurations;
 using Quotes.Repositories;
 using Quotes.Services;
 
@@ -7,9 +10,32 @@ namespace Quotes
     {
         public static void Main(string[] args)
         {
+            Env.Load();
+
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.Services.AddSingleton<ISubscriberRepository, InMemorySubscriberRepository>();
+            //bool useMongoDb = builder.Configuration.GetValue<bool>("FeatureFlags:UseMongoDb");
+
+            bool useMongoDb = builder.Configuration.GetValue<bool>("FeatureFlags:UseMongoDb");
+
+            if (useMongoDb)
+            {
+                // Whenever someone asks for MongoDbOptions, bind it from appsettings.json.
+                builder.Services.Configure<MongoDbOptions>(builder.Configuration.GetSection(MongoDbOptions.SectionName));
+
+                // Configure MongoDB client
+                builder.Services.AddSingleton<IMongoClient>(serviceProvider =>
+                {
+                    var mongoDbOptions = builder.Configuration.GetSection(MongoDbOptions.SectionName).Get<MongoDbOptions>();
+                    return new MongoClient(mongoDbOptions?.ConnectionString);
+                });
+
+                builder.Services.AddScoped<ISubscriberRepository, MongoDbSubscriberRepository>();
+            }
+            else
+            {
+                builder.Services.AddSingleton<ISubscriberRepository, InMemorySubscriberRepository>();
+            }
 
             builder.Services.AddScoped<INewsletterService, NewsletterService>();
 

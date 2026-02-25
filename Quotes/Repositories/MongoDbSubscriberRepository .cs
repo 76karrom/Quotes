@@ -1,4 +1,6 @@
-﻿using MongoDB.Driver;
+﻿using Microsoft.Extensions.Options;
+using MongoDB.Driver;
+using Quotes.Configurations;
 using Quotes.Models;
 
 namespace Quotes.Repositories
@@ -7,9 +9,13 @@ namespace Quotes.Repositories
     {
         private readonly IMongoCollection<Subscriber> _subscribers;
 
-        public MongoDbSubscriberRepository(IMongoCollection<Subscriber> subscribers)
+        public MongoDbSubscriberRepository(
+            IMongoClient mongoClient, 
+            IOptions<MongoDbOptions> options)
         {
-            _subscribers = subscribers;
+            var mongoOptions = options.Value;
+            var database = mongoClient.GetDatabase(mongoOptions.DatabaseName);
+            _subscribers = database.GetCollection<Subscriber>(mongoOptions.SubscribersCollectionName);
         }
 
         public async Task<bool> AddAsync(Subscriber subscriber)
