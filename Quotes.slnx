@@ -1,4 +1,9 @@
 <Solution>
-  <Folder Name="/Infrastructure/" />
+  <Folder Name="/Infrastructure/">
+    <File Path="Infrastructure/quotes-app.service" />
+    <File Path="Infrastructure/vm.bicep" />
+    <File Path="Infrastructure/vm.bicepparam" />
+  </Folder>
   <Project Path="Quotes/Quotes.csproj" />
+  <Project Path="Services.UnitTests/Services.UnitTests.csproj" Id="52bc5bc3-4c5f-4f7c-8c45-5b837dff0300" />
 </Solution>
