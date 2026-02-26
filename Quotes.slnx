@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/Infrastructure/">
+    <File Path=".env.example" />
     <File Path="Infrastructure/docker-compose.yml" />
     <File Path="Infrastructure/quotes-app.service" />
     <File Path="Infrastructure/vm.bicep" />
