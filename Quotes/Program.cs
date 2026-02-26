@@ -1,4 +1,5 @@
 using DotNetEnv;
+using Microsoft.AspNetCore.Hosting.StaticWebAssets;
 using MongoDB.Driver;
 using Quotes.Configurations;
 using Quotes.Repositories;
@@ -41,6 +42,9 @@ namespace Quotes
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+
+            // Run Production without publish
+            //StaticWebAssetsLoader.UseStaticWebAssets(builder.Environment, builder.Configuration);
 
             var app = builder.Build();
 
