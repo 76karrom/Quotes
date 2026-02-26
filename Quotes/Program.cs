@@ -15,21 +15,31 @@ namespace Quotes
 
             var builder = WebApplication.CreateBuilder(args);
 
-            bool useMongoDb = builder.Configuration.GetValue<bool>("FeatureFlags:UseMongoDb");
-
-            if (useMongoDb)
+            if (builder.Configuration.GetValue<bool>("FeatureFlags:UseMongoDb"))
             {
-                // Whenever someone asks for MongoDbOptions, bind it from appsettings.json.
                 builder.Services.Configure<MongoDbOptions>(builder.Configuration.GetSection(MongoDbOptions.SectionName));
 
-                // Configure MongoDB client
                 builder.Services.AddSingleton<IMongoClient>(serviceProvider =>
                 {
                     var mongoDbOptions = builder.Configuration.GetSection(MongoDbOptions.SectionName).Get<MongoDbOptions>();
+                    
                     return new MongoClient(mongoDbOptions?.ConnectionString);
                 });
 
                 builder.Services.AddScoped<ISubscriberRepository, MongoDbSubscriberRepository>();
+            }
+            else if (builder.Configuration.GetValue<bool>("FeatureFlags:UseCosmosDb"))
+            {
+                builder.Services.Configure<CosmosDbOptions>(builder.Configuration.GetSection(CosmosDbOptions.SectionName));
+
+                builder.Services.AddSingleton<IMongoClient>(serviceProvider =>
+                {
+                    var cosmosDbOptions = builder.Configuration.GetSection(CosmosDbOptions.SectionName).Get<CosmosDbOptions>();
+
+                    return new MongoClient(cosmosDbOptions?.ConnectionString);
+                });
+
+                builder.Services.AddScoped<ISubscriberRepository, CosmosDbSubscriberRepository>();
             }
             else
             {
