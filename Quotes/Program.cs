@@ -15,8 +15,6 @@ namespace Quotes
 
             var builder = WebApplication.CreateBuilder(args);
 
-            //bool useMongoDb = builder.Configuration.GetValue<bool>("FeatureFlags:UseMongoDb");
-
             bool useMongoDb = builder.Configuration.GetValue<bool>("FeatureFlags:UseMongoDb");
 
             if (useMongoDb)

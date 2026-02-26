@@ -1,26 +1,30 @@
 # Quotes
 Good quotes.
 
-# Run from powershell
+# Use MongoDb
 
-$env:ASPNETCORE_ENVIRONMENT="Development"
+To use MongoDb set FeatureFlags: UseMongoDb in appsettings.json to true. If set to false InMemoryStarage will be used
 
-    dotnet run
+# Setting up MongoDb container
 
-# Start MongoDB and Mongo Express containers in detached mode
+1. Create local .env file in folder Infrastructure from pattern in .env.example
 
-From Infrastructure folder run
+2. From Infrastructure folder run
+   
+   docker-compose up -d
 
-    docker-compose up -d
+   docker-compose down      (tear down container)
+ 
+   docker-compose down -v   (tear down container AND cleanup data)
+   
+# Handeling MongoDb credentials in app
 
-# Stop the containers
+1. Set uo user secrets
 
-From Infrastructure folder run
-    
-    docker-compose down
+   dotnet user-secrets init
 
-# Stop and remove volumes (cleans up data)
+   dotnet user-secrets set "MongoDb:ConnectionString"  "<your connectionstring with credentials>"
 
-From Infrastructure folder run
+   dotnet user-secrets list  (check added credentials)
 
-    docker-compose down -v
+NOTE! if no user-secrets are set MongoDb will default to local instance ("mongodb://localhost:27017") 
