@@ -4,6 +4,7 @@ using MongoDB.Driver;
 using Quotes.Configurations;
 using Quotes.Repositories;
 using Quotes.Services;
+using Quotes.Storage;
 
 namespace Quotes
 {
@@ -14,6 +15,22 @@ namespace Quotes
             Env.Load();
 
             var builder = WebApplication.CreateBuilder(args);
+            
+            // Azure blob storage
+
+            if (builder.Configuration.GetValue<bool>("FeatureFlags:UseAzureStorage"))
+            {
+                builder.Services.Configure<AzureBlobOptions>(builder.Configuration.GetSection(AzureBlobOptions.SectionName));
+
+                builder.Services.AddSingleton<IImageService, AzureBlobImageService>();
+            }
+            else
+            {
+                builder.Services.AddHttpContextAccessor();
+
+                builder.Services.AddSingleton<IImageService, LocalImageService>();
+            }
+
 
             if (builder.Configuration.GetValue<bool>("FeatureFlags:UseMongoDb"))
             {
@@ -70,6 +87,7 @@ namespace Quotes
             app.UseAuthorization();
 
             app.MapStaticAssets();
+            
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}")

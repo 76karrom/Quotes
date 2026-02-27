@@ -1,13 +1,23 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Quotes.Models;
+using Quotes.Storage;
+using System.Diagnostics;
 
 namespace Quotes.Controllers
 {
     public class HomeController : Controller
     {
+        private readonly IImageService _imageService;
+
+        public HomeController(ILogger<HomeController> logger, IImageService imageService)
+        {
+            _imageService = imageService;
+        }
+
         public IActionResult Index()
         {
+            ViewData["HeroImageUrl"] = _imageService.GetImageUrl("hero.jpg");
+
             return View();
         }
 
