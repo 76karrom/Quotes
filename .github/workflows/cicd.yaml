@@ -34,3 +34,46 @@ jobs:
       with:
         name: app-artifacts
         path: ./publish
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+
+    - name: Download app artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: app-artifacts
+        path: ./publish
+
+    - name: Set up SSH key and config
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+
+        cat >> ~/.ssh/config <<EOF
+        Host bastion
+          HostName ${{ secrets.BASTION_IP }}
+          User azureuser
+          IdentityFile ~/.ssh/id_rsa
+          StrictHostKeyChecking no
+
+        Host appvm
+          HostName ${{ secrets.APPVM_IP }}
+          User azureuser
+          IdentityFile ~/.ssh/id_rsa
+          StrictHostKeyChecking no
+          ProxyJump bastion
+        EOF
+
+        chmod 600 ~/.ssh/config
+
+    - name: Deploy to App VM via Bastion
+      run: |
+        scp -r ./publish/* appvm:/tmp/myapp-release/
+        ssh appvm 'sudo systemctl stop myapp.service && sudo rm -rf /opt/myapp/* && sudo cp -r /tmp/myapp-release/* /opt/myapp/ && sudo chown -R azureuser:azureuser /opt/myapp && sudo systemctl start myapp.service && rm -rf /tmp/myapp-release'
+
+    - name: Verify deployment
+      run: |
+        ssh appvm 'systemctl is-active myapp.service'
